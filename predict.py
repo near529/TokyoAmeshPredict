@@ -36,9 +36,9 @@ def convert_to_RGB(vmatrix):
     for i in range(nrow):
         for j in range(ncol):
             value = vmatrix[i, j] * dt_max
-            idx = 0
-            while idx < bound_num-1 and dt_bound[idx] <= value:
-                idx += 1
+            idx = bound_num-1
+            while idx > 0 and dt_bound[idx] > value:
+                idx -= 1
             img[i, j] = dt_stone[idx]
     io.imshow(img)
     plt.show()
