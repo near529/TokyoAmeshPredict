@@ -11,16 +11,30 @@ from settings import Settings
 from regist import RegularRegist
 
 def _test():
-    moving = ImageBase()
-    moving.load_data(r'../TOKYO_AMESH_IMAGE/000/2009/200905290240.gif')
+    moving_path = r'../TOKYO_AMESH_IMAGE/000/2009/200905290240.gif'
+    fixed_path = r'../TOKYO_AMESH_IMAGE/000/2009/200905290250.gif'
+    real_path = r'../TOKYO_AMESH_IMAGE/000/2009/200905290300.gif'
 
+    moving = ImageBase()
+    moving.load_data(moving_path)
+
+    
     fixed = ImageBase()
-    fixed.load_data(r'../TOKYO_AMESH_IMAGE/000/2009/200905290250.gif')
+    fixed.load_data(fixed_path)
     regist = RegularRegist(moving, fixed)
     regist.run()
-    regist.linear_transform()
-    convert_to_RGB(regist.vnext.values)
+    regist.predict_linear_transform()
+    
+    # For display
+    # regist.regist_linear_transform()
+    # img_moved = convert_to_RGB(regist.vmoved.values)
+    
+    img_next = convert_to_RGB(regist.vnext.values)
+    img_real = io.imread(real_path)
+    img_moving = io.imread(moving_path)
+    img_fixed = io.imread(fixed_path)
 
+    display(img_moving, img_fixed, img_real, img_next)
     #print regist.optimizer.vgrid.values
     #print regist.fixed.values
     #print regist.optimizer.cost
@@ -36,11 +50,29 @@ def convert_to_RGB(vmatrix):
     for i in range(nrow):
         for j in range(ncol):
             value = vmatrix[i, j] * dt_max
-            idx = 0
-            while idx < bound_num-1 and dt_bound[idx] <= value:
-                idx += 1
+            idx = bound_num-1
+            while idx > 0 and dt_bound[idx] > value:
+                idx -= 1
             img[i, j] = dt_stone[idx]
-    io.imshow(img)
+    return img
+
+def display(img_moving, img_fixed, img_real, img_next):
+    u'''Display moving, fixed, moved and next'''
+    fig, axes = plt.subplots(2, 2)
+    axes[0, 0].imshow(img_moving, cmap='gray')
+    axes[0, 0].set_title('Moving')
+
+    axes[0, 1].imshow(img_fixed, cmap='gray')
+    axes[0, 1].set_title('Fixed')
+
+    axes[1, 0].imshow(img_real, cmap='gray')
+    axes[1, 0].set_title('Real')
+
+    axes[1, 1].imshow(img_next, cmap='gray')
+    axes[1, 1].set_title('Predicted')
+
+    plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.1, hspace=0.1)
+    fig.suptitle('Amesh prediction')
     plt.show()
 
 def test_values_img():

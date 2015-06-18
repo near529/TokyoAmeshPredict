@@ -3,6 +3,17 @@
 
 u'''Setting for environment'''
 
+class Params:
+    def __init__(self):
+        u'''Init'''
+        pass
+
+    MAXITERS = 100
+    PIXELSKIP = 4
+    MAGEPSILON = 1e-6
+    BASELR = 100
+    DECAY = 0.7
+
 class Settings:
     def __init__(self):
         u'''Init'''
@@ -11,7 +22,7 @@ class Settings:
     DATA_DIR = r'../TOKYO_AMESH_IMAGE/000'
     DATA_MAX = 80.0
     DATA_MIN = 0.0
-    DATA_BOUNDER = [0, 4, 10, 20, 30, 40, 50, 80, 80]
+    DATA_BOUNDER = [0, 1, 4, 10, 20, 30, 40, 50, 80]
     DATA_STONE = [(0, 0, 0), (204, 255, 255), (102, 153, 255), \
         (51, 51, 255), (0, 255, 0), (255, 255, 0), (255, 153, 0), \
         (255, 0, 255), (255, 0, 0)]

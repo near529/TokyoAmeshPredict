@@ -5,7 +5,7 @@ import numpy as np
 
 from optimizer import RegularOptimizer
 from utils import Grid, ImageGrad, ImageBase, linear_interpolator
-from settings import Settings
+from settings import Settings, Params
 
 def CalMAD(moving, fixed):
     # NEED TO IMPLEMENTATION
@@ -220,7 +220,7 @@ def CalCubicDerivAndMAD(moving, fixed, vgrad, vgrid):
 class RegularRegist(object):
     u'''Registration class'''
 
-    def __init__(self, moving, fixed, skip = 4, spacing=(32, 32), max_iters=50, base_lr=100):
+    def __init__(self, moving, fixed, skip=Params.PIXELSKIP, spacing=(32, 32), max_iters=Params.MAXITERS, base_lr=Params.BASELR):
         u'''Init regist class with two images'''
         assert(moving.size == fixed.size)
 
@@ -229,6 +229,7 @@ class RegularRegist(object):
         self.skip = skip
         self.movgrad = CalImageGrad(moving)
         self.vnext = None
+        self.vmoved = None
         self.vgrid = Grid(moving.size, spacing)
         # Initialize optimizer with vgrid and dervgrid
         self.optimizer = RegularOptimizer(self.vgrid, Grid(moving.size, spacing), \
@@ -260,7 +261,7 @@ class RegularRegist(object):
 
         self.vgrid = self.optimizer.vgrid
 
-    def linear_transform(self):
+    def predict_linear_transform(self):
         u'''Linear transform fixed image to next image'''
         # NEED TO IMPLEMENTATION
         (ysize, xsize) = self.fixed.size
@@ -300,6 +301,47 @@ class RegularRegist(object):
                     g = 1.0
 
                 self.vnext.values[y, x] = g
+
+    def regist_linear_transform(self):
+        u'''Linear transform moving image to moved image'''
+        # NEED TO IMPLEMENTATION
+        (ysize, xsize) = self.moving.size
+        self.vmoved = ImageBase(size=(ysize, xsize))
+
+        (orgy, orgx) = self.vgrid.origin
+        spacing = self.vgrid.spacing
+
+        xmax = xsize - 1
+        ymax = ysize - 1
+        Ed = 0.0
+
+        for y in range(ysize):
+            gy = ( (y - orgy) / spacing[1])
+            ry = float(y % spacing[1]) / float(spacing[1])
+            for x in range(xsize):
+                gx = ( (x - orgx) // spacing[0])
+                rx = float(x % spacing[0]) / float(spacing[0])
+
+                v00 = self.vgrid.values[gy  , gx  ]
+                v01 = self.vgrid.values[gy  , gx+1]
+                v10 = self.vgrid.values[gy+1, gx  ]
+                v11 = self.vgrid.values[gy+1, gx+1]
+
+                v0 = (1 - rx) * v00 + rx * v01 
+                v1 = (1 - rx) * v11 + rx * v10
+                v  = (1 - ry) * v1  + ry * v0
+
+                coord = np.array([x, y]) + v
+
+                # Find value in fixed
+                g = linear_interpolator(self.moving, coord)
+                # For out of bound
+                if g < 0.0:
+                    g = 0.0
+                if g > 1.0:
+                    g = 1.0
+
+                self.vmoved.values[y, x] = g
 
     def cubic_transform(self):
         u'''Linear transform moving image by vgrid'''
