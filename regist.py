@@ -220,7 +220,7 @@ def CalCubicDerivAndMAD(moving, fixed, vgrad, vgrid):
 class RegularRegist(object):
     u'''Registration class'''
 
-    def __init__(self, moving, fixed, skip = 4, spacing=(32, 32), max_iters=500, base_lr=100):
+    def __init__(self, moving, fixed, skip = 4, spacing=(16, 16), max_iters=50, base_lr=100):
         u'''Init regist class with two images'''
         assert(moving.size == fixed.size)
 
