@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """Optimizer class"""
 import numpy as np
+from settings import Params
 
 class RegularOptimizer(object):
     u'''Regular gradient descent optimizer'''
@@ -13,7 +14,7 @@ class RegularOptimizer(object):
         self.iter = 0
         self.max_iters = max_iters
         self.lr = base_lr
-        self.decay = 0.9
+        self.decay = Params.DECAY
         self.vgrid = vgrid
         self.vdervgrid = deriv_grid
         self.cost = None
@@ -42,6 +43,9 @@ class RegularOptimizer(object):
                     total += np.sum(self.vdervgrid.values[gy, gx] * prev_deriv.values[gy, gx])
                     magnitude += np.sum(self.vdervgrid.values[gy, gx] * self.vdervgrid.values[gy, gx])
             
+            magnitude = np.sqrt(magnitude)
+            if magnitude < Params.MAGEPSILON:
+                return False
             # print 'magnitude: ', np.sqrt(magnitude),
 
             if total < 0.0:
@@ -52,7 +56,7 @@ class RegularOptimizer(object):
             for gy in range(gysize):
                 for gx in range(gxsize):
                     # NEED TO IMPLEMENTATION
-                    self.vgrid.values[gy, gx] -= self.lr * self.vdervgrid.values[gy, gx]
+                    self.vgrid.values[gy, gx] -= self.lr * self.vdervgrid.values[gy, gx] / magnitude
 
             # Increase interation step
             self.iter += 1

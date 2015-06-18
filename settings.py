@@ -3,6 +3,17 @@
 
 u'''Setting for environment'''
 
+class Params:
+    def __init__(self):
+        u'''Init'''
+        pass
+
+    MAXITERS = 100
+    PIXELSKIP = 4
+    MAGEPSILON = 1e-6
+    BASELR = 100
+    DECAY = 0.7
+
 class Settings:
     def __init__(self):
         u'''Init'''
